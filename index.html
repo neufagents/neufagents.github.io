@@ -6,7 +6,7 @@
 <title>NeufAgents — Tools for the agent era</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#0B0B0C">
-<meta name="description" content="NeufAgents builds small, careful software for people who run AI agents — and deploys, fixes and maintains agent stacks on servers. Currently shipping dsh-healthcheck for DeepSeek Harness.">
+<meta name="description" content="NeufAgents builds small, careful software for people who run AI agents — and deploys, fixes and maintains agent stacks on servers. Open source: MCP Triage across 8 agent clients, dsh-healthcheck for DeepSeek Harness.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -262,7 +262,7 @@
   <nav>
     <a class="logo" href="/">NeufAgents<span class="dot">.</span></a>
     <div class="links">
-      <a href="#work">Work</a>
+      <a href="#mcp-triage">Tools</a>
       <a href="#services">Services</a>
       <a href="https://github.com/neufagents" target="_blank" rel="noopener">GitHub ↗</a>
     </div>
@@ -273,6 +273,57 @@
     <h1>Tools for the <span class="dim">agent</span> era.</h1>
     <p class="sub">Small, careful software for people who run AI agents — built in the open, shipped from day one.</p>
   </header>
+
+  <section id="mcp-triage">
+    <div class="sec-kicker"><span class="live"></span>New — open source</div>
+    <h2>MCP Triage</h2>
+    <div class="product-grid">
+      <div>
+        <div class="product-name">mcp-triage <span class="ver">v0.1.0</span></div>
+        <p class="product-desc">
+          A <strong>triage for broken MCP setups</strong>. One command scans the config files of the
+          eight agent clients on your machine, explains what is broken in plain English — and
+          <strong>repairs the mechanical class</strong> (comments, trailing commas) with a parse-gated
+          write and a backup.
+        </p>
+        <ul class="product-points">
+          <li><strong>Eight clients</strong> — Claude Desktop, Claude Code, Codex, Cursor, VS Code, Windsurf, OpenClaw, dsh</li>
+          <li><strong>Checks that matter</strong> — broken JSON/TOML, commands not on PATH, missing env vars, relative paths, transport mismatches, cross-client drift</li>
+          <li><strong>Conservative by design</strong> — only provably safe fixes are written; everything else gets an explanation and a hint, never a guess</li>
+        </ul>
+        <div class="links-row">
+          <a class="btn primary" href="https://github.com/neufagents/mcp-triage" target="_blank" rel="noopener">GitHub <span class="arr">↗</span></a>
+          <a class="btn" href="https://www.npmjs.com/package/mcp-triage" target="_blank" rel="noopener">npm <span class="arr">↗</span></a>
+        </div>
+        <div class="meta">
+          <span>MIT</span><span>45 tests passing</span><span>zero runtime deps</span>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="dot3"></span><span class="dot3"></span><span class="dot3"></span>
+          <span class="title">bash — triage</span>
+        </div>
+        <pre><span class="cmt"># every MCP client on this machine</span>
+<span class="prompt">$</span> <span class="cmd">npx mcp-triage</span>
+
+MCP Triage v0.1.0 — scanned 3 config file(s)
+
+Findings (4):
+  <span class="hl">[ERROR]</span> Claude Desktop: trailing comma in JSON
+           → remove the comma; restart the client
+  <span class="hl">[ERROR]</span> Codex "notes-mcp": command not on PATH
+  [WARN ] Codex "notes-mcp": relative path ./notes
+  [INFO ] "filesystem" drifts across 2 clients
+
+Summary: 2 errors, 1 warning, 1 info
+
+<span class="cmt"># fix the mechanical class — with a backup</span>
+<span class="prompt">$</span> <span class="cmd">npx mcp-triage --fix</span>
+  <span class="hl">[FIXED]</span> Claude Desktop — removed trailing comma</pre>
+      </div>
+    </div>
+  </section>
 
   <section id="work">
     <div class="sec-kicker"><span class="live"></span>Now shipping</div>
@@ -318,7 +369,9 @@
     <div class="sec-kicker">Services</div>
     <h2>Deploy it. Fix it. Keep it running.</h2>
     <p class="services-copy">
-      We work on self-hosted AI agent setups — Claude Code, OpenClaw, DeepSeek Harness, n8n and similar stacks.
+      We work on self-hosted AI agent setups — Claude Code, OpenClaw, DeepSeek Harness, n8n and similar stacks,
+      MCP configs included: if a client still refuses to start after a clean mcp-triage scan, send us the report —
+      that is the kind of case we take.
       New servers deployed and hardened, broken ones repaired, healthy ones looked after.
       <strong>Fully async, everything in writing</strong> — and we take on a small number of projects at a time,
       so each one gets done properly.
