@@ -6,7 +6,7 @@
 <title>NeufAgents — Tools for the agent era</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#0B0B0C">
-<meta name="description" content="NeufAgents builds small, careful software for people who run AI agents. Currently shipping dsh-healthcheck for DeepSeek Harness.">
+<meta name="description" content="NeufAgents builds small, careful software for people who run AI agents — and deploys, fixes and maintains agent stacks on servers. Currently shipping dsh-healthcheck for DeepSeek Harness.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -162,10 +162,68 @@
   .btn.primary .arr { color: var(--bg); opacity: 0.55; }
 
   /* ---------- services ---------- */
-  .services-copy { margin-top: 20px; color: var(--muted); max-width: 60ch; }
+  .services-copy { margin-top: 20px; color: var(--muted); max-width: 64ch; }
   .services-copy strong { color: var(--ink); font-weight: 500; }
+
+  .svc-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 18px; margin-top: 46px;
+  }
+  .svc-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 26px 24px 22px;
+    display: flex; flex-direction: column;
+  }
+  .svc-name {
+    font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--ink);
+  }
+  .svc-name::before { content: '▸ '; color: var(--accent); }
+  .svc-desc { margin-top: 12px; color: var(--muted); font-size: 15.5px; line-height: 1.55; }
+  .svc-points { margin-top: 16px; list-style: none; flex: 1; }
+  .svc-points li {
+    color: var(--muted); font-size: 14.5px; line-height: 1.55;
+    padding-left: 18px; position: relative; margin-bottom: 9px;
+  }
+  .svc-points li::before { content: '—'; position: absolute; left: 0; color: var(--faint); }
+  .svc-price {
+    margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 13.5px; color: var(--faint);
+  }
+  .svc-price strong { color: var(--accent); font-weight: 500; font-size: 16px; }
+
+  .svc-how { margin-top: 64px; }
+  .svc-sub {
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--faint);
+  }
+  .svc-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; }
+  .svc-step .n { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.1em; }
+  .svc-step p { margin-top: 8px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+  .svc-step p strong { color: var(--ink); font-weight: 500; }
+
+  .svc-faq { margin-top: 64px; max-width: 780px; }
+  .svc-faq details { border-bottom: 1px solid var(--line); }
+  .svc-faq details:first-of-type { border-top: 1px solid var(--line); }
+  .svc-faq summary {
+    cursor: pointer; padding: 17px 0; font-size: 16px; color: var(--ink);
+    list-style: none; display: flex; justify-content: space-between;
+    align-items: baseline; gap: 20px;
+  }
+  .svc-faq summary::-webkit-details-marker { display: none; }
+  .svc-faq summary::marker { content: ''; }
+  .svc-faq summary::after {
+    content: '+'; color: var(--faint); font-family: var(--mono); font-size: 15px;
+  }
+  .svc-faq details[open] summary::after { content: '–'; }
+  .svc-faq .a {
+    padding: 0 0 20px; color: var(--muted); font-size: 15px;
+    max-width: 68ch; line-height: 1.6;
+  }
+
+  .services-cta { margin-top: 56px; }
+  .services-cta .line { font-size: 17px; color: var(--ink); }
   .services-mail {
-    margin-top: 28px; font-family: var(--mono); font-size: 15px;
+    margin-top: 16px; font-family: var(--mono); font-size: 15px;
   }
   .services-mail a {
     color: var(--accent); text-decoration: none;
@@ -173,7 +231,7 @@
     padding-bottom: 2px;
   }
   .services-mail a:hover { border-bottom-color: var(--accent); }
-  .services-hint { margin-top: 10px; font-size: 14px; color: var(--faint); }
+  .services-hint { margin-top: 12px; font-size: 14px; color: var(--faint); }
 
   /* ---------- footer ---------- */
   footer {
@@ -191,6 +249,7 @@
     .hero { padding: 72px 0 64px; }
     section { padding: 64px 0; }
     .product-grid { grid-template-columns: 1fr; gap: 36px; }
+    .svc-grid, .svc-steps { grid-template-columns: 1fr; }
     nav .links a.hide-sm { display: none; }
     .wrap { padding: 0 22px; }
   }
@@ -257,15 +316,97 @@
 
   <section id="services">
     <div class="sec-kicker">Services</div>
-    <h2>Managed deployment &amp; hosting</h2>
+    <h2>Deploy it. Fix it. Keep it running.</h2>
     <p class="services-copy">
-      We set up, harden and look after agent stacks — <strong>so you don't have to</strong>.
-      A small number of slots will open soon — fully async, no calls; everything handled in writing.
+      We work on self-hosted AI agent setups — Claude Code, OpenClaw, DeepSeek Harness, n8n and similar stacks.
+      New servers deployed and hardened, broken ones repaired, healthy ones looked after.
+      <strong>Fully async, everything in writing</strong> — and we take on a small number of projects at a time,
+      so each one gets done properly.
     </p>
-    <div class="services-mail">
-      <a href="mailto:hi@neufagents.com">hi@neufagents.com</a>
+
+    <div class="svc-grid">
+      <div class="svc-card">
+        <div class="svc-name">Deploy &amp; harden</div>
+        <p class="svc-desc">Your agent stack, freshly set up on a clean server — and proven to boot.</p>
+        <ul class="svc-points">
+          <li>Install on a clean Linux server, configured for real use</li>
+          <li>Hardening: non-root user, firewall, SSH keys only, automatic updates</li>
+          <li>Smoke tests and boot verification, shown in the handover</li>
+          <li>A short runbook: start/stop, logs, updates, recovery</li>
+        </ul>
+        <div class="svc-price">from <strong>$149</strong> · one-off</div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-name">Fix a broken setup</div>
+        <p class="svc-desc">Something stopped working — we find the root cause and fix it.</p>
+        <ul class="svc-points">
+          <li>Installs that never finished, services that won't start, configs broken after an update</li>
+          <li>Remote diagnosis with a written plan; the fix applied and verified with logs</li>
+          <li>If it's outside what we can do well, we say so before anything is paid</li>
+        </ul>
+        <div class="svc-price">from <strong>$99</strong> · one-off</div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-name">Managed ops</div>
+        <p class="svc-desc">Monitoring, backups and updates for a stack that has to stay up.</p>
+        <ul class="svc-points">
+          <li>Uptime, disk and service checks with alerts</li>
+          <li>Scheduled backups — tested and restorable, not just a cron job</li>
+          <li>Careful security updates, plus a plain-language monthly report</li>
+          <li>Month to month — no lock-in</li>
+        </ul>
+        <div class="svc-price">from <strong>$89</strong> / month</div>
+      </div>
     </div>
-    <p class="services-hint">Tell us what you're running — we'll write back when slots open.</p>
+
+    <div class="svc-how">
+      <div class="svc-sub">How it works</div>
+      <div class="svc-steps">
+        <div class="svc-step">
+          <div class="n">01</div>
+          <p><strong>Write to us.</strong> A few lines: what you run (or want to run), where it lives, and what you need. Plain email — no forms, no calls.</p>
+        </div>
+        <div class="svc-step">
+          <div class="n">02</div>
+          <p><strong>Scope and price, in writing.</strong> We reply with exactly what we'll do, what it costs, and how access works — before anything is paid or touched.</p>
+        </div>
+        <div class="svc-step">
+          <div class="n">03</div>
+          <p><strong>Approve, then we work.</strong> You approve in writing; we do the work and hand over the proof — tests, logs, runbook.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="svc-faq">
+      <details>
+        <summary>Do you need access to my server?</summary>
+        <div class="a">Yes — SSH, ideally key-based, and you can revoke it at any time. We start read-only where possible, and on one-off jobs we close our access after handover.</div>
+      </details>
+      <details>
+        <summary>Which stacks do you support?</summary>
+        <div class="a">Claude Code, OpenClaw, DeepSeek Harness, n8n and similar Node/Python agent setups. If yours isn't on the list, ask — we'll tell you honestly whether we're the right fit.</div>
+      </details>
+      <details>
+        <summary>Can we do a call?</summary>
+        <div class="a">No — we work fully async by design. Everything in writing is faster to act on and keeps a clear record for both sides.</div>
+      </details>
+      <details>
+        <summary>Do I need a server already?</summary>
+        <div class="a">No. Tell us your region and budget — we'll recommend a provider and specs. You pay the provider directly; we never resell servers.</div>
+      </details>
+      <details>
+        <summary>How does payment work?</summary>
+        <div class="a">Once we agree the scope in writing, we send a secure payment link (card or bank transfer). Nothing is charged until you've approved the plan.</div>
+      </details>
+    </div>
+
+    <div class="services-cta">
+      <p class="line">Tell us what you're running — we'll tell you how we can help.</p>
+      <div class="services-mail">
+        <a href="mailto:hi@neufagents.com?subject=Agent%20stack%20help">hi@neufagents.com</a>
+      </div>
+      <p class="services-hint">Usually answered within a business day.</p>
+    </div>
   </section>
 
   <footer>
