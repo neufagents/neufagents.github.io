@@ -279,7 +279,7 @@
     <h2>MCP Triage</h2>
     <div class="product-grid">
       <div>
-        <div class="product-name">mcp-triage <span class="ver">v0.1.0</span></div>
+        <div class="product-name">mcp-triage <span class="ver">v0.2.0</span></div>
         <p class="product-desc">
           A <strong>triage for broken MCP setups</strong>. One command scans the config files of the
           eight agent clients on your machine, explains what is broken in plain English — and
@@ -290,13 +290,14 @@
           <li><strong>Eight clients</strong> — Claude Desktop, Claude Code, Codex, Cursor, VS Code, Windsurf, OpenClaw, dsh</li>
           <li><strong>Checks that matter</strong> — broken JSON/TOML, commands not on PATH, missing env vars, relative paths, transport mismatches, cross-client drift</li>
           <li><strong>Conservative by design</strong> — only provably safe fixes are written; everything else gets an explanation and a hint, never a guess</li>
+          <li><strong>Runs as an MCP server</strong> — npx mcp-triage serve lets your agent client run triage itself (triage_scan, triage_fix)</li>
         </ul>
         <div class="links-row">
           <a class="btn primary" href="https://github.com/neufagents/mcp-triage" target="_blank" rel="noopener">GitHub <span class="arr">↗</span></a>
           <a class="btn" href="https://www.npmjs.com/package/mcp-triage" target="_blank" rel="noopener">npm <span class="arr">↗</span></a>
         </div>
         <div class="meta">
-          <span>MIT</span><span>45 tests passing</span><span>zero runtime deps</span>
+          <span>MIT</span><span>66 tests passing</span><span>zero runtime deps</span>
         </div>
       </div>
       <div class="terminal">
@@ -307,7 +308,7 @@
         <pre><span class="cmt"># every MCP client on this machine</span>
 <span class="prompt">$</span> <span class="cmd">npx mcp-triage</span>
 
-MCP Triage v0.1.0 — scanned 3 config file(s)
+MCP Triage v0.2.0 — scanned 3 config file(s)
 
 Findings (4):
   <span class="hl">[ERROR]</span> Claude Desktop: trailing comma in JSON
@@ -320,7 +321,10 @@ Summary: 2 errors, 1 warning, 1 info
 
 <span class="cmt"># fix the mechanical class — with a backup</span>
 <span class="prompt">$</span> <span class="cmd">npx mcp-triage --fix</span>
-  <span class="hl">[FIXED]</span> Claude Desktop — removed trailing comma</pre>
+  <span class="hl">[FIXED]</span> Claude Desktop — removed trailing comma
+
+<span class="cmt"># or run it as an MCP server — triage from inside your client</span>
+<span class="prompt">$</span> <span class="cmd">npx mcp-triage serve</span></pre>
       </div>
     </div>
   </section>
