@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case study: n8n lead qualifier (Webhook + DeepSeek + routing) — NeufAgents</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0B0B0C">
+<meta name="description" content="A working n8n workflow that qualifies inbound leads with an external AI API: webhook in, DeepSeek classifies, router branches, JSON out. Built and tested end to end.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0B0C;
+    --panel: #141416;
+    --ink: #F2F0EA;
+    --muted: #9C9A93;
+    --faint: #6B6A64;
+    --line: rgba(255, 255, 255, 0.09);
+    --accent: #E8A33D;
+    --sans: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 32px; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 28px 0; border-bottom: 1px solid var(--line); }
+  .logo { font-weight: 700; font-size: 19px; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+  .logo .dot { color: var(--accent); }
+  nav .links a { color: var(--muted); text-decoration: none; font-size: 15px; }
+  nav .links a:hover { color: var(--ink); }
+  .hero { padding: 84px 0 56px; }
+  .kicker { font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); margin-bottom: 24px; }
+  .kicker em { color: var(--accent); font-style: normal; }
+  h1 { font-size: clamp(32px, 4.6vw, 54px); font-weight: 600; letter-spacing: -0.025em; line-height: 1.1; max-width: 26ch; }
+  .sub { margin-top: 26px; font-size: clamp(16px, 1.8vw, 19px); color: var(--muted); max-width: 62ch; }
+  .stack { margin-top: 26px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .chip { font-family: var(--mono); font-size: 12.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px; }
+  section { padding: 40px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 20px; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+  .step { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .step .n { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.1em; }
+  .step h3 { font-size: 16px; font-weight: 600; margin: 8px 0 6px; }
+  .step p { font-size: 14.5px; color: var(--muted); line-height: 1.55; }
+  .shot { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 10px; }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot .cap { font-family: var(--mono); font-size: 12.5px; color: var(--faint); padding: 10px 14px; border-top: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  th { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); font-weight: 500; }
+  td { color: var(--muted); }
+  td strong { color: var(--ink); font-weight: 500; }
+  .note { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 20px 22px; margin-top: 18px; }
+  .note p { color: var(--muted); font-size: 15.5px; }
+  .note p + p { margin-top: 12px; }
+  .cta { padding: 56px 0 72px; border-top: 1px solid var(--line); }
+  .cta h2 { max-width: 30ch; }
+  .btn { display: inline-block; margin-top: 22px; background: var(--accent); color: #141210; font-weight: 600; font-size: 15.5px; text-decoration: none; padding: 13px 26px; border-radius: 10px; }
+  footer { border-top: 1px solid var(--line); padding: 26px 0; font-family: var(--mono); font-size: 13px; color: var(--faint); }
+  code { font-family: var(--mono); font-size: 0.92em; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+</style>
+</head>
+<body>
+
+<nav class="wrap">
+  <a class="logo" href="/">NeufAgents<span class="dot">.</span></a>
+  <div class="links"><a href="/#services">Services</a><a href="mailto:hi@neufagents.com">hi@neufagents.com</a></div>
+</nav>
+
+<header class="hero wrap">
+  <div class="kicker">Case study <em>/</em> automation</div>
+  <h1>An n8n workflow that qualifies leads with an external AI API</h1>
+  <p class="sub">Webhook in, DeepSeek classifies, the router branches on the verdict, JSON out. This is the exact flow we built and tested end to end on a local n8n instance (version 2.22.6) as a reference for automation work.</p>
+  <div class="stack">
+    <span class="chip">n8n 2.22.6</span>
+    <span class="chip">DeepSeek API</span>
+    <span class="chip">Webhook</span>
+    <span class="chip">IF router</span>
+    <span class="chip">JSON response</span>
+  </div>
+</header>
+
+<section class="wrap">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="n">01 / WEBHOOK</div>
+      <h3>Lead arrives</h3>
+      <p>A <code>POST /webhook/lead-qualify</code> receives the lead payload (name, company, role, message, budget, timeline).</p>
+    </div>
+    <div class="step">
+      <div class="n">02 / HTTP</div>
+      <h3>AI classifies</h3>
+      <p>The workflow calls the DeepSeek chat completions API with a strict JSON prompt: score 0-100, tier HOT / WARM / COLD, one-sentence reason.</p>
+    </div>
+    <div class="step">
+      <div class="n">03 / ROUTER</div>
+      <h3>Branch on verdict</h3>
+      <p>An IF node checks the model output for HOT and routes to the matching responder.</p>
+    </div>
+    <div class="step">
+      <div class="n">04 / RESPONSE</div>
+      <h3>JSON back</h3>
+      <p>The webhook caller gets <code>{ qualified, source, ai }</code> the same moment the call finishes.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>The workflow</h2>
+  <div class="shot"><img src="/work/assets/n8n-canvas.png" alt="n8n canvas: Webhook, DeepSeek Classify, Is Hot?, Respond HOT, Respond Not HOT"><div class="cap">Canvas: Webhook &rarr; DeepSeek Classify &rarr; Is Hot? &rarr; Respond HOT / Respond Not HOT</div></div>
+</section>
+
+<section class="wrap">
+  <h2>Real test runs</h2>
+  <p class="sub" style="margin-top:0;margin-bottom:18px;">Two live requests against the running instance. No mocks: the classify step hit the real API both times.</p>
+  <table>
+    <tr><th>Run</th><th>Input</th><th>Tier</th><th>Score</th><th>Response</th></tr>
+    <tr><td><strong>#1</strong></td><td>VP Engineering, approved Q4 budget, 6-week timeline</td><td><strong>HOT</strong></td><td>95</td><td><code>qualified: true</code></td></tr>
+    <tr><td><strong>#2</strong></td><td>Owner, no budget, "just browsing"</td><td><strong>COLD</strong></td><td>10</td><td><code>qualified: false</code></td></tr>
+  </table>
+  <div class="shot" style="margin-top:22px;"><img src="/work/assets/n8n-executions.png" alt="n8n executions list showing two successful runs"><div class="cap">Executions view: both runs completed successfully</div></div>
+</section>
+
+<section class="wrap">
+  <h2>The part that actually takes time</h2>
+  <div class="note">
+    <p>The flow itself is four nodes and an afternoon. Getting a local n8n running the way we wanted took longer: native modules (<code>sqlite3</code>, <code>isolated-vm</code>) had to be rebuilt against the right Node version, the CLI import needs an explicit workflow id, and a published workflow only takes effect after a restart.</p>
+    <p>That is normal for automation work, and it is usually where projects stall. If a workflow of yours is stuck somewhere between "it worked yesterday" and "nobody knows why it stopped", that is the kind of thing we fix.</p>
+  </div>
+</section>
+
+<div class="cta wrap">
+  <h2>Need a workflow fixed, migrated or kept alive?</h2>
+  <p class="sub">Diagnosis $99, repair with a 30-day warranty on the same root cause $299, or ongoing care from $200/month. Everything in writing, fully async.</p>
+  <a class="btn" href="mailto:hi@neufagents.com?subject=Automation%20rescue">Email hi@neufagents.com</a>
+</div>
+
+<footer class="wrap">NeufAgents &middot; built and tested locally &middot; September 2026</footer>
+
+</body>
+</html>
