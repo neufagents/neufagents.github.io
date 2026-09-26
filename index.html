@@ -191,6 +191,16 @@
   }
   .svc-price strong { color: var(--accent); font-weight: 500; font-size: 16px; }
 
+  /* ---------- automation rescue ---------- */
+  .svc-rescue { margin-top: 52px; }
+  .svc-rescue p { margin-top: 12px; color: var(--muted); max-width: 74ch; line-height: 1.65; }
+  .svc-rescue p strong { color: var(--ink); font-weight: 500; }
+  .rescue-prices {
+    margin-top: 18px; display: flex; gap: 14px 36px; flex-wrap: wrap;
+    color: var(--muted); font-size: 15px;
+  }
+  .rescue-prices strong { color: var(--accent); font-weight: 500; font-size: 16px; }
+
   .svc-how { margin-top: 64px; }
   .svc-sub {
     font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.16em;
@@ -413,6 +423,20 @@ Summary: 2 errors, 1 warning, 1 info
           <li>Month to month — no lock-in</li>
         </ul>
         <div class="svc-price">from <strong>$89</strong> / month</div>
+      </div>
+    </div>
+
+    <div class="svc-rescue">
+      <div class="svc-sub">Also: automation rescue for n8n / Make / Zapier</div>
+      <p>
+        Broken workflows are a quieter kind of outage: nothing throws, data just stops arriving.
+        We diagnose and repair n8n, Make and Zapier flows, and the fix comes with a 30-day warranty on the same root cause.
+        <strong>Happy to show a working example we built and tested end to end</strong> (webhook to external AI API to routing) if you want a reference before committing.
+      </p>
+      <div class="rescue-prices">
+        <span>Diagnosis <strong>$99</strong> (credited toward a repair)</span>
+        <span>Repair + warranty <strong>$299</strong></span>
+        <span>Keep it running <strong>from $200/month</strong></span>
       </div>
     </div>
 
