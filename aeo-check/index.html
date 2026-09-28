@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Visibility Check — NeufAgents</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0B0B0C">
+<meta name="description" content="Free automated check: we run 5 buyer questions across 3 AI engines and show what the answers say about your brand. Full audits from $950.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0B0C;
+    --panel: #141416;
+    --panel-2: #1A1A1D;
+    --ink: #F2F0EA;
+    --muted: #9C9A93;
+    --faint: #6B6A64;
+    --line: rgba(255, 255, 255, 0.09);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --accent: #E8A33D;
+    --accent-dim: rgba(232, 163, 61, 0.12);
+    --sans: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--sans);
+    font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 32px; }
+
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 0; border-bottom: 1px solid var(--line);
+  }
+  .logo { font-weight: 700; font-size: 19px; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+  .logo .dot { color: var(--accent); }
+  nav .links { display: flex; gap: 28px; align-items: center; }
+  nav .links a { color: var(--muted); text-decoration: none; font-size: 15px; }
+  nav .links a:hover { color: var(--ink); }
+
+  .hero { padding: 84px 0 64px; }
+  .kicker {
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 24px;
+  }
+  .kicker em { color: var(--accent); font-style: normal; }
+  h1 {
+    font-size: clamp(36px, 5.6vw, 62px); font-weight: 600;
+    letter-spacing: -0.03em; line-height: 1.08; max-width: 21ch;
+  }
+  .sub { margin-top: 26px; font-size: clamp(17px, 2vw, 19px); color: var(--muted); max-width: 60ch; }
+
+  /* ---------- form card ---------- */
+  .card {
+    margin-top: 44px; background: var(--panel); border: 1px solid var(--line-strong);
+    border-radius: 16px; padding: 32px 32px 26px; max-width: 720px;
+  }
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 7px; }
+  .field label .req { color: var(--accent); }
+  .field input {
+    width: 100%; background: var(--bg); border: 1px solid var(--line-strong);
+    border-radius: 9px; padding: 12px 14px; color: var(--ink);
+    font-family: var(--sans); font-size: 16px; outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--faint); }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  button.submit {
+    width: 100%; margin-top: 6px; padding: 14px 18px; border: 0; border-radius: 9px;
+    background: var(--accent); color: #181206; font-family: var(--sans);
+    font-size: 17px; font-weight: 600; cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+  button.submit:hover { filter: brightness(1.08); }
+  button.submit:disabled { opacity: 0.6; cursor: default; }
+  .fine { margin-top: 14px; font-size: 13px; color: var(--faint); }
+  .fine a { color: var(--muted); }
+  .status { margin-top: 16px; font-size: 15px; display: none; }
+  .status.show { display: block; }
+  .status.ok { color: #7BC98A; }
+  .status.err { color: #E88B72; }
+
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  .sec-kicker {
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 18px;
+  }
+  h2 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+
+  /* ---------- sample report sheet ---------- */
+  .sheet-wrap { margin-top: 36px; max-width: 760px; }
+  .sheet {
+    position: relative; background: #FCFCFA; color: #1f2937; border-radius: 10px;
+    padding: 30px 34px; font-size: 13.5px; line-height: 1.55;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  }
+  .sheet .tag {
+    position: absolute; top: 14px; right: 16px; font-family: var(--mono);
+    font-size: 10.5px; letter-spacing: 0.14em; color: #14532d;
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 99px;
+    padding: 3px 10px; text-transform: uppercase;
+  }
+  .sheet .brand { font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #14532d; font-weight: 700; }
+  .sheet h3 { font-size: 21px; margin: 5px 0 2px; letter-spacing: -0.01em; }
+  .sheet .sub2 { color: #6b7280; font-size: 12.5px; margin-bottom: 14px; }
+  .sheet .kpi { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 11px 14px; margin: 12px 0; }
+  .sheet .kpi b { color: #14532d; }
+  .sheet h4 { font-size: 13.5px; margin: 14px 0 5px; color: #111827; }
+  .sheet table { border-collapse: collapse; width: 100%; }
+  .sheet th, .sheet td { border: 1px solid #e5e7eb; padding: 5px 9px; text-align: left; font-size: 12.5px; }
+  .sheet th { background: #f9fafb; font-weight: 600; }
+  .sheet td.num { font-weight: 700; white-space: nowrap; }
+  .sheet ul { margin: 4px 0; padding-left: 18px; }
+  .sheet .foot { color: #9ca3af; font-size: 11px; margin-top: 12px; border-top: 1px solid #e5e7eb; padding-top: 8px; }
+  .sheet-note { margin-top: 14px; color: var(--faint); font-size: 13.5px; }
+
+  /* ---------- why ---------- */
+  .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 40px; }
+  .why-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 26px 24px; }
+  .why-card .n { font-family: var(--mono); font-size: 13px; color: var(--accent); margin-bottom: 12px; }
+  .why-card h3 { font-size: 17.5px; font-weight: 600; margin-bottom: 8px; }
+  .why-card p { color: var(--muted); font-size: 15px; }
+
+  /* ---------- audit cta ---------- */
+  .audit {
+    margin-top: 36px; background: var(--panel); border: 1px solid var(--line-strong);
+    border-radius: 16px; padding: 34px 36px; max-width: 760px;
+  }
+  .audit .price { font-family: var(--mono); font-size: 26px; color: var(--accent); margin: 10px 0 4px; }
+  .audit p { color: var(--muted); margin-top: 10px; }
+  .audit p strong { color: var(--ink); font-weight: 500; }
+  .audit a.mail {
+    display: inline-block; margin-top: 20px; background: var(--accent); color: #181206;
+    font-weight: 600; text-decoration: none; border-radius: 9px; padding: 12px 22px;
+  }
+
+  footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 34px 0 46px; border-top: 1px solid var(--line);
+    color: var(--faint); font-size: 14px;
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+
+  @media (max-width: 760px) {
+    .row-2, .why-grid { grid-template-columns: 1fr; }
+    .card { padding: 24px 20px 20px; }
+    .sheet { padding: 22px 18px; }
+    .sheet .tag { top: 10px; right: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <a class="logo" href="/">NeufAgents<span class="dot">.</span></a>
+    <div class="links">
+      <a href="/#services">Services</a>
+      <a href="mailto:hi@neufagents.com">Contact</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="kicker">AI search visibility <em>— free automated check</em></div>
+    <h1>Is your brand showing up in AI answers?</h1>
+    <p class="sub">Buyers ask ChatGPT, AI Overviews and AI Mode what to buy. We check 5 questions like theirs
+    across 3 engines, and email you what the answers actually say about you — and who they mention instead.</p>
+
+    <form class="card" id="check-form" action="https://formsubmit.co/ajax/hi@neufagents.com" method="post" novalidate>
+      <input type="hidden" name="_subject" value="New AI visibility check">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_blacklist" value="seo package, backlinks, guest post, crypto, loan, escort">
+      <div class="field">
+        <label for="domain">Store / brand domain <span class="req">*</span></label>
+        <input id="domain" name="domain" type="text" placeholder="yourbrand.com" autocomplete="url" required>
+      </div>
+      <div class="field">
+        <label for="email">Email <span class="req">*</span></label>
+        <input id="email" name="email" type="email" placeholder="you@company.com" autocomplete="email" required>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="category">Category <span style="color:var(--faint)">(optional)</span></label>
+          <input id="category" name="category" type="text" placeholder="e.g. dog supplements">
+        </div>
+        <div class="field">
+          <label for="competitors">Main competitors <span style="color:var(--faint)">(optional)</span></label>
+          <input id="competitors" name="competitors" type="text" placeholder="1–3 names or domains">
+        </div>
+      </div>
+      <div class="hp">
+        <label for="hp">Leave this field empty</label>
+        <input id="hp" name="hp" type="text" tabindex="-1" autocomplete="off">
+        <input id="honey" name="_honey" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <button class="submit" id="submit-btn" type="submit">Get my free visibility check</button>
+      <p class="fine">An automated check — not a sales call. We use your details only to run it and send the report;
+      no lists, no sharing. <a href="/privacy.html">Privacy</a>.</p>
+      <p class="status" id="form-status" role="status" aria-live="polite"></p>
+      <noscript><p class="fine">JavaScript is off — email <a href="mailto:hi@neufagents.com?subject=AI%20visibility%20check">hi@neufagents.com</a> and we'll run it for you.</p></noscript>
+    </form>
+  </div>
+
+  <section id="sample">
+    <div class="sec-kicker">What you get</div>
+    <h2>One page. Your questions, their answers.</h2>
+    <div class="sheet-wrap">
+      <div class="sheet">
+        <div class="tag">Sample</div>
+        <div class="brand">NeufAgents · AI Search Visibility</div>
+        <h3>Mini check: example-brand.com</h3>
+        <div class="sub2">How AI assistants answer buyers' questions in your category — snapshot 2026-09-28</div>
+        <div class="kpi">
+          Your brand appeared in <b>4 of 15</b> AI responses across 3 engines.<br>
+          Brand-name queries: <b>2/2</b> referenced — but category &amp; recommendation queries: <b>2/13</b>.
+        </div>
+        <h4>1 · Where you show up</h4>
+        <table>
+          <tr><th>Engine</th><th>Mentioned</th><th>By question</th></tr>
+          <tr><td>Google AI Overviews</td><td class="num">2 / 5</td><td>&#10003; &#10003; &#10007; &#10007; &#10007;</td></tr>
+          <tr><td>Google AI Mode</td><td class="num">1 / 5</td><td>&#10007; &#10003; &#10007; &#10007; &#10007;</td></tr>
+          <tr><td>ChatGPT</td><td class="num">1 / 5</td><td>&#10007; &#10007; &#10003; &#10007; &#10007;</td></tr>
+        </table>
+        <h4>2 · What we tested</h4>
+        <ul>
+          <li>best &lt;category&gt; for &lt;use case&gt;</li>
+          <li>&lt;category&gt; brands compared</li>
+          <li>is example-brand.com any good</li>
+          <li>where to buy &lt;category&gt; online</li>
+          <li>&lt;category&gt; recommendations from real reviews</li>
+        </ul>
+        <div class="foot">Method: anonymous browser sessions, 3 engines, 5 questions per engine, single snapshot.
+        AI answers vary run to run; paid audits use up to 3 runs per question with timestamps and keep captures for every query.</div>
+      </div>
+      <p class="sheet-note">Sample format. Your report uses your domain, your category and the actual quotes — with the sources the models cited.</p>
+    </div>
+  </section>
+
+  <section id="why">
+    <div class="sec-kicker">Why it matters</div>
+    <h2>The shortlist is now written by a model.</h2>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="n">01</div>
+        <h3>The buying question moved</h3>
+        <p>People ask AI what to buy, not just search engines. The answer they get is the new front page of your category.</p>
+      </div>
+      <div class="why-card">
+        <div class="n">02</div>
+        <h3>Not mentioned, not compared</h3>
+        <p>If the answer names three brands and yours isn't one of them, you were on the shortlist in spirit — and out of it in practice.</p>
+      </div>
+      <div class="why-card">
+        <div class="n">03</div>
+        <h3>See it before you fix it</h3>
+        <p>The check shows the exact questions, what the models answered, and who got named instead. Fixing starts from there.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="audit">
+    <div class="sec-kicker">Full audit</div>
+    <h2>Want the full picture?</h2>
+    <div class="audit">
+      <div class="price">from $950</div>
+      <p><strong>20 questions × 4 engines, 5 business days, paid up front.</strong>
+      You get the citation-source map (where each answer comes from), the competitor displacement list
+      (who gets named in your place), and a prioritized fix list to work through — in writing, backed by captures of every query.</p>
+      <a class="mail" href="mailto:hi@neufagents.com?subject=Full%20AI%20visibility%20audit">hi@neufagents.com</a>
+      <p style="font-size:14px;color:var(--faint)">Tell us your domain — we'll confirm scope and timing the same day.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div>© 2026 NeufAgents</div>
+    <div>
+      <a href="mailto:hi@neufagents.com">hi@neufagents.com</a>
+      &nbsp;·&nbsp;
+      <a href="/privacy.html">Privacy</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById('check-form');
+  var btn = document.getElementById('submit-btn');
+  var statusEl = document.getElementById('form-status');
+
+  function setStatus(kind, text) {
+    statusEl.className = 'status show ' + kind;
+    statusEl.textContent = text;
+  }
+
+  function cleanDomain(v) {
+    v = (v || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '');
+    return v.split(/[\/?#\s]/)[0];
+  }
+
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var domain = cleanDomain(document.getElementById('domain').value);
+    var email = document.getElementById('email').value.trim();
+    var category = document.getElementById('category').value.trim();
+    var competitors = document.getElementById('competitors').value.trim();
+    var hp = document.getElementById('hp').value;
+
+    if (!/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/.test(domain)) {
+      setStatus('err', 'Enter a domain like yourbrand.com');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
+      setStatus('err', "That email doesn't look right — check it and try again.");
+      return;
+    }
+
+    btn.disabled = true;
+    var label = btn.textContent;
+    btn.textContent = 'Running your check…';
+    setStatus('', 'Sending…');
+
+    fetch('https://formsubmit.co/ajax/hi@neufagents.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        domain: domain, email: email, category: category, competitors: competitors,
+        hp: hp,
+        _subject: 'New AI visibility check — ' + domain,
+        _template: 'table',
+        _captcha: 'false',
+        _blacklist: 'seo package, backlinks, guest post, crypto, loan, escort',
+        _honey: document.getElementById('honey').value
+      })
+    })
+      .then(function (resp) { return resp.json().catch(function () { return {}; }).then(function (d) { return { ok: resp.ok, d: d }; }); })
+      .then(function (r) {
+        var ok = r.d && (r.d.success === true || r.d.success === 'true');
+        if (ok) {
+          form.querySelectorAll('.field, .row-2, .hp, button.submit, p.fine').forEach(function (el) { el.style.display = 'none'; });
+          setStatus('ok', 'Got it. We\'re checking ' + domain + ' now — your report will land at ' + email + ' within 24 hours (usually much sooner).');
+        } else {
+          setStatus('err', 'Something went wrong on our side. Email hi@neufagents.com and we\'ll take it from there.');
+        }
+      })
+      .catch(function () {
+        setStatus('err', 'Network hiccup — try once more, or email hi@neufagents.com.');
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = label;
+      });
+  });
+})();
+</script>
+</body>
+</html>
