@@ -329,22 +329,41 @@
     btn.textContent = 'Running your check…';
     setStatus('', 'Sending…');
 
-    fetch('https://formsubmit.co/ajax/hi@neufagents.com', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        domain: domain, email: email, category: category, competitors: competitors,
-        hp: hp,
-        _subject: 'New AI visibility check — ' + domain,
-        _template: 'table',
-        _captcha: 'false',
-        _blacklist: 'seo package, backlinks, guest post, crypto, loan, escort',
-        _honey: document.getElementById('honey').value
-      })
-    })
-      .then(function (resp) { return resp.json().catch(function () { return {}; }).then(function (d) { return { ok: resp.ok, d: d }; }); })
-      .then(function (r) {
-        var ok = r.d && (r.d.success === true || r.d.success === 'true');
+    var payload = { domain: domain, email: email, category: category, competitors: competitors, hp: hp };
+
+    // Primary: own Worker (same origin). Fallback: FormSubmit (legacy).
+    function postWorker() {
+      return fetch('/api/aeo-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function (resp) {
+        return resp.json().catch(function () { return {}; }).then(function (d) {
+          if (resp.ok && d && d.ok === true) return true;
+          throw new Error('worker_failed');
+        });
+      });
+    }
+
+    function postFormSubmit() {
+      return fetch('https://formsubmit.co/ajax/hi@neufagents.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          domain: domain, email: email, category: category, competitors: competitors,
+          hp: hp,
+          _subject: 'New AI visibility check — ' + domain,
+          _template: 'table',
+          _captcha: 'false',
+          _blacklist: 'seo package, backlinks, guest post, crypto, loan, escort',
+          _honey: document.getElementById('honey').value
+        })
+      }).then(function (resp) { return resp.json().catch(function () { return {}; }).then(function (d) { return resp.ok && d && (d.success === true || d.success === 'true'); }); });
+    }
+
+    postWorker()
+      .catch(function () { return postFormSubmit(); })
+      .then(function (ok) {
         if (ok) {
           form.querySelectorAll('.field, .row-2, .hp, button.submit, p.fine').forEach(function (el) { el.style.display = 'none'; });
           setStatus('ok', 'Got it. We\'re checking ' + domain + ' now — your report will land at ' + email + ' within 24 hours (usually much sooner).');
