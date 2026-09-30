@@ -37,8 +37,9 @@
   <h1>You built it with AI. We check what AI tends to miss.</h1>
   <p class="lede">A focused security scan for apps built with Cursor, Claude Code, Lovable and friends — the ten mistake classes that shipped vibe-coded products keep repeating.</p>
 
-  <p style="margin-top:24px"><a class="cta" href="#scan">Get the free sample scan &rarr;</a></p>
+  <p style="margin-top:26px"><a class="cta" href="#scan">Request the free sample scan &rarr;</a></p>
   <p class="muted">One repo, top-line findings, no fixes — see the list before paying for anything.</p>
+  <p class="muted" style="margin-top:10px">In a hurry? Paste a public repo into the <a href="/vibescan/scan.html"><strong>instant scan</strong></a> — results in seconds, and nothing leaves your browser.</p>
 
   <h2>What we look for</h2>
   <ul>
@@ -108,6 +109,8 @@
     var repo = document.getElementById('repo').value.trim();
     var email = document.getElementById('email').value.trim();
     var hp = document.getElementById('hp').value;
+    var src = '';
+    try { src = new URLSearchParams(window.location.search).get('from') || ''; } catch (e) { src = ''; }
     if (!/^https?:\/\/\S+$/i.test(repo) || repo.length < 12) { setStatus('err', 'Paste a full repo link, e.g. https://github.com/you/app'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) { setStatus('err', "That email doesn't look right - check it and try again."); return; }
     btn.disabled = true;
@@ -117,7 +120,7 @@
     fetch('/api/vibescan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ repo: repo, email: email, hp: hp })
+      body: JSON.stringify({ repo: repo, email: email, hp: hp, src: src })
     }).then(function (resp) {
       return resp.json().catch(function () { return {}; }).then(function (d) {
         if (resp.ok && d && d.ok === true) {

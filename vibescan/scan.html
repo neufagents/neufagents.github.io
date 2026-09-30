@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scan your repo - see what it leaks | NeufAgents</title>
+<meta name="description" content="Free instant scan for AI-built repos: hardcoded keys, committed .env files, exposed service_role keys, client-side leaks. Runs entirely in your browser - your code never leaves it.">
+<style>
+  :root { --ink:#111; --muted:#555; --line:#e5e5e5; --brand:#0b7a5a; --red:#b91c1c; --amber:#b45309; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.65 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color:var(--ink); }
+  .wrap { max-width: 800px; margin: 0 auto; padding: 44px 22px 72px; }
+  h1 { font-size: 33px; line-height:1.25; margin: 0 0 10px; letter-spacing:-.02em; }
+  h2 { font-size: 21px; margin: 38px 0 10px; letter-spacing:-.01em; }
+  .lede { font-size: 18px; color:var(--muted); }
+  .crumb { font-size: 14px; margin-bottom: 18px; } .crumb a { color: var(--muted); text-decoration: none; }
+  .box { border:1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin: 20px 0; }
+  label { display:block; font-weight:600; margin: 0 0 6px; }
+  .row { display:flex; gap:10px; }
+  input[type=text] { flex:1; padding: 12px; border:1px solid #ccc; border-radius: 8px; font-size:16px; }
+  button.submit { background:var(--brand); color:#fff; border:0; font-weight:700; padding: 12px 22px; border-radius: 10px; font-size:16px; cursor:pointer; white-space:nowrap; }
+  button.submit:disabled { opacity:.55; cursor:default; }
+  button.ghost { background:#fff; color:var(--ink); border:1px solid #ccc; font-weight:600; padding: 11px 20px; border-radius: 10px; font-size:15px; cursor:pointer; }
+  .or { color:var(--muted); font-size:14px; margin: 10px 0; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .cta { display:inline-block; background:var(--brand); color:#fff; text-decoration:none; font-weight:600; padding: 12px 20px; border-radius: 10px; margin: 6px 8px 4px 0; }
+  .cta.alt { background:#fff; color:var(--brand); border:1px solid var(--brand); }
+  .status { margin-top: 12px; font-weight:600; } .err { color: var(--red); }
+  .sev { display:inline-block; font-size:12px; font-weight:700; padding: 1px 8px; border-radius: 20px; margin-right: 8px; vertical-align: 1px; }
+  .sev.HIGH { background:#fee2e2; color:var(--red); } .sev.MEDIUM { background:#fef3c7; color:var(--amber); }
+  .sev.LOW { background:#e0e7ff; color:#3730a3; } .sev.INFO { background:#e5e7eb; color:#374151; }
+  .finding { border:1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 10px 0; }
+  .finding .f-title { font-weight: 600; }
+  .finding .f-loc { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; color: var(--muted); margin: 2px 0; word-break: break-all; }
+  .finding .f-ev { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; background:#f7f7f7; padding: 2px 6px; border-radius: 4px; }
+  .finding .f-hint { font-size: 14px; margin-top: 6px; }
+  code { background:#f5f5f5; padding:1px 5px; border-radius:4px; font-size:14px; }
+  .summary { font-size: 18px; font-weight: 600; margin: 14px 0 4px; }
+  .steps { background:#f8fafc; border-left:3px solid var(--brand); padding: 10px 16px; margin: 14px 0; border-radius: 0 8px 8px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="crumb"><a href="/vibescan/">&larr; Vibescan - security scans for AI-built apps</a></p>
+
+  <h1>Scan your repo. See what it leaks.</h1>
+  <p class="lede">Paste a public GitHub repo, or pick a local folder. The scan runs in your browser - your code never leaves it. Free, no signup.</p>
+
+  <div class="box">
+    <label for="repo">Public GitHub repo</label>
+    <div class="row">
+      <input type="text" id="repo" placeholder="https://github.com/you/your-app" autocomplete="off" spellcheck="false">
+      <button class="submit" id="run-btn">Run scan</button>
+    </div>
+    <div class="or">or</div>
+    <button class="ghost" id="folder-btn">Choose folder...</button>
+    <input type="file" id="folder-input" webkitdirectory multiple style="display:none">
+    <p class="muted" style="margin:12px 0 0">Private repo? Use the <a href="/vibescan/?from=scan#scan">free sample review</a> instead - we request read-only access, and we never write.</p>
+  </div>
+
+  <div id="progress" class="status" style="display:none"></div>
+  <div id="error" class="status err" style="display:none"></div>
+  <div id="results" style="display:none"></div>
+
+  <h2>What this instant scan cannot see</h2>
+  <p>It covers four static classes: hardcoded secrets, committed <code>.env</code> files, exposed service-role keys, and client-side secret names. Six more classes need a human pass on the full source (plus git history):</p>
+  <ul>
+    <li>Database tables readable or writable without auth (RLS off)</li>
+    <li>Storage buckets left public</li>
+    <li>Admin or debug endpoints left open</li>
+    <li>Webhooks without signature verification</li>
+    <li>Auth enforced only on the frontend</li>
+    <li>Dependencies with known vulnerabilities</li>
+  </ul>
+  <p>The <a href="/vibescan/?from=scan#scan">free sample review</a> covers these - one repo, human pass, 24-48 hours. The full 10-class audit is <a href="/vibescan/#pricing">$500</a>.</p>
+
+  <p class="muted" id="disclaimer">Immediate static preview only. Absence of findings is not proof of security.</p>
+  <p class="muted">NeufAgents - <a href="/vibescan/">vibescan</a> &middot; <a href="/">Home</a> &middot; <a href="/privacy.html">Privacy</a></p>
+
+</div>
+<script src="scan-core.js"></script>
+<script src="scan.js"></script>
+</body>
+</html>
